@@ -16,8 +16,7 @@ import java.util.logging.Logger;
 /**
  * This class implements the remote interface RMIInterface.
  */
-public class RMIImplementation extends UnicastRemoteObject
-        implements RMIInterface {
+public class RMIImplementation extends UnicastRemoteObject implements RMIInterface {
 
     List<File> f = new ArrayList<File>();
     File[] files = new File[50];
@@ -26,33 +25,28 @@ public class RMIImplementation extends UnicastRemoteObject
         super();
     }
 
-    public File downloadFile(String content) throws RemoteException {
-        Boolean found = false;
-        int i = 0;
-        while (found != true) {
-            BufferedReader br = null;
-            try {
-                br = new BufferedReader(new FileReader(f.get(i)));
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(RMIImplementation.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            String line = null;
-            try {
-                line = br.readLine();
-            } catch (IOException ex) {
-                Logger.getLogger(RMIImplementation.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            System.out.println(line);
-            System.out.println(content);
-            if (line == content) {
-                found = true;
-                return f.get(i);
-            } else {
-                i++;
+    public File downloadFile(String title) throws RemoteException {
+        File folder = new File("Storage-Server");
+        File[] listOfFiles = folder.listFiles();
+
+        return searchFile(listOfFiles,title);
+    }
+    
+    public File searchFile(File[] listOfFiles, String title){
+        for (File listOfFile : listOfFiles) {
+            if (listOfFile.isFile()) {
+                if (listOfFile.getName().equals(title)) {
+                    return new File(title);
+                }
+            } else if (listOfFile.isDirectory()) {
+                File folder = new File(listOfFile.getName());
+                return searchFile(folder.listFiles(), listOfFile.getName() + "/" + title);
             }
         }
         return null;
     }
+
+    
 
     @Override
     public void saveFile(String title, String content) throws RemoteException {
@@ -65,7 +59,7 @@ public class RMIImplementation extends UnicastRemoteObject
 
     public void manageFile(String title, String content) throws IOException {
         try {
-            File file = new File(title);
+            File file = new File("Storage-Server/"+title);
             if (!file.exists()) {
                 file.createNewFile();
             }

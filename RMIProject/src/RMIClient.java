@@ -1,5 +1,5 @@
 
-import java.io.File;
+import java.io.*;
 import java.rmi.*;
 import java.util.Scanner;
 
@@ -7,16 +7,19 @@ public class RMIClient {
 
     public static void main(String args[]) {
         try {
+            File dir = new File("Storage-Client");
+            dir.mkdir();
+            
+            
             String registryURL
                     = "rmi://localhost:" + 1234 + "/some";
             RMIInterface inter
                     = (RMIInterface) Naming.lookup(registryURL);
             // invoke the remote method(s)
-            String[] title = new String[50];
-            String[] content = new String[50];
-            File[] file = new File[50];
-            int j = 0, i = 0;
+            String title = new String();
+            String content = new String();
             Scanner reader = new Scanner(System.in);
+            
             while (true) {
                 System.out.println("What should I do?(upload file, download file or stop");
                 String input = reader.nextLine();
@@ -24,24 +27,35 @@ public class RMIClient {
                 if ("upload file".equals(input)) {
                     System.out.println("Entre title name");
                     input = reader.nextLine();
-                    title[i] = input;
+                    title = input;
                     System.out.println("Enter content");
                     input = reader.nextLine();
-                    content[i] = input;
-                    inter.saveFile(title[i], content[i]);
-                    i++;
-                } else if ("download file".equals(input)) {
+                    content = input;
+                    inter.saveFile(title, content);
+                }
+                else if ("download file".equals(input)) {
                     System.out.println("Insert the content of the file you want");
                     input = reader.nextLine();
-                    file[j] = inter.downloadFile(input);
-                    if (file[j] == null) {
+                    File file = inter.downloadFile(input);
+                    if (file == null) {
                         System.out.println("The file hasn't been found");
-                        break;
                     }
-                    j++;
-                } else if ("stop".equals(input)) {
+                    else{
+                        File save = new File("Storage-client/"+title);
+                        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                            String line;
+                            PrintWriter writer = new PrintWriter(save, "UTF-8");
+                            while ((line = br.readLine()) != null) {                             
+                                writer.println(line);
+                                writer.close();
+                            }
+                        }
+                    }
+                }
+                else if ("stop".equals(input)) {
                     break;
-                } else {
+                } 
+                else {
                     System.out.println("Unrecognized order");
                 }
             }

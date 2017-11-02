@@ -1,4 +1,5 @@
 
+import java.io.*;
 import java.rmi.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -6,6 +7,9 @@ import java.rmi.registry.Registry;
 public class RMIServer {
 
     public static void main(String args[]) {
+        File dir = new File("Storage-Server");
+        dir.mkdir();
+        
         try {
             // code for port number value to be supplied
             RMIImplementation exportedObj = new RMIImplementation();
