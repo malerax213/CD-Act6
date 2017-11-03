@@ -6,7 +6,7 @@ import java.rmi.*;
 
 public interface RMIInterface extends Remote {
 
-    public File downloadFile(String content)
+    public byte[] downloadFile(String content)
             throws java.rmi.RemoteException;
     
     public void saveFile(String title, String content)

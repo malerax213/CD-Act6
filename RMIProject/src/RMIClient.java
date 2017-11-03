@@ -36,19 +36,23 @@ public class RMIClient {
                 else if ("download file".equals(input)) {
                     System.out.println("Insert the content of the file you want");
                     input = reader.nextLine();
-                    File file = inter.downloadFile(input);
+                    String path = "Storage-Client/" + input;
+                    File save = new File(path);
+                    byte[] file = inter.downloadFile(input);
+
                     if (file == null) {
                         System.out.println("The file hasn't been found");
                     }
                     else{
-                        File save = new File("Storage-client/"+title);
-                        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                            String line;
-                            PrintWriter writer = new PrintWriter(save, "UTF-8");
-                            while ((line = br.readLine()) != null) {                             
-                                writer.println(line);
-                                writer.close();
-                            }
+                        
+                        try{
+                            BufferedOutputStream Output = new BufferedOutputStream(new FileOutputStream(path));
+                            Output.write(file,0,file.length);
+                            Output.flush();
+                            Output.close();
+                        }
+                        catch(Exception e){
+                        System.out.println("FileServer exception:"+e.getMessage());
                         }
                     }
                 }

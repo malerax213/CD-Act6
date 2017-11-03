@@ -1,11 +1,5 @@
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.rmi.*;
 import java.rmi.server.*;
 import java.util.ArrayList;
@@ -18,32 +12,50 @@ import java.util.logging.Logger;
  */
 public class RMIImplementation extends UnicastRemoteObject implements RMIInterface {
 
-    List<File> f = new ArrayList<File>();
+    List<File> f = new ArrayList<>();
     File[] files = new File[50];
 
     public RMIImplementation() throws RemoteException {
         super();
     }
 
-    public File downloadFile(String title) throws RemoteException {
+    @Override
+    public byte[] downloadFile(String title) throws RemoteException {
         File folder = new File("Storage-Server");
+        String path = "Storage-Server/";
         File[] listOfFiles = folder.listFiles();
-
-        return searchFile(listOfFiles,title);
+        File objective;
+        path =searchFile(listOfFiles,path,title);
+        objective = new File(path);
+        byte buffer[]=new byte[(int)objective.length()];
+        
+        try{
+            BufferedInputStream input = new BufferedInputStream(new FileInputStream(path));
+            input.read(buffer,0,buffer.length);
+            input.close();
+            return(buffer);
+        } catch (IOException e) {
+            System.out.println("FileServer exception:"+e.getMessage());
+            return null;
+        }
     }
     
-    public File searchFile(File[] listOfFiles, String title){
+    public String searchFile(File[] listOfFiles, String path,String title){
+        String found = null;
         for (File listOfFile : listOfFiles) {
             if (listOfFile.isFile()) {
                 if (listOfFile.getName().equals(title)) {
-                    return new File(title);
+                    return path+"/"+title;
                 }
             } else if (listOfFile.isDirectory()) {
                 File folder = new File(listOfFile.getName());
-                return searchFile(folder.listFiles(), listOfFile.getName() + "/" + title);
+                found = searchFile(folder.listFiles(), path + "/" + listOfFile.getName(),title);
+                if (found != null){
+                    return found;
+                }
             }
         }
-        return null;
+        return found;
     }
 
     
