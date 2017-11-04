@@ -20,7 +20,7 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
     @Override
     public byte[] downloadFile(String title) throws RemoteException {
         File folder = new File("Storage-Server");
-        String path = "Storage-Server/";
+        String path = "Storage-Server";
         File[] listOfFiles = folder.listFiles();
         File objective;
         path = searchFile(listOfFiles,path,title);
@@ -40,14 +40,14 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
     
     public String searchFile(File[] listOfFiles, String path,String title){
         String found = null;
-        for (File listOfFile : listOfFiles) {
-            if (listOfFile.isFile()) {
-                if (listOfFile.getName().equals(title)) {
+        for (File e : listOfFiles) {
+            if (e.isFile()) {
+                if (e.getName().equals(title)) {
                     return path+"/"+title;
                 }
-            } else if (listOfFile.isDirectory()) {
-                File folder = new File(listOfFile.getName());
-                found = searchFile(folder.listFiles(), path + "/" + listOfFile.getName(),title);
+            } else if (e.isDirectory()) {
+                File folder = new File(path+"/"+e.getName());
+                found = searchFile(folder.listFiles(), path + "/" + folder.getName(),title);
                 if (found != null){
                     return found;
                 }
@@ -56,15 +56,12 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
         return found;
     }
 
-    
-
     @Override
     public void saveFile(byte[] buffer, String title) throws RemoteException {
         String uniqueID = UUID.randomUUID().toString();
         File dir = new File("Storage-Server/" + uniqueID);
         dir.mkdir();
         String path = "Storage-Server/" + uniqueID+ "/" + title;
-        File file = new File(path);
         
         try{
                 FileOutputStream FOS = new FileOutputStream(path);
