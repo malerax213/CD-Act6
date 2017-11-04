@@ -2,10 +2,8 @@
 import java.io.*;
 import java.rmi.*;
 import java.rmi.server.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
+
 
 /**
  * This class implements the remote interface RMIInterface.
@@ -25,7 +23,7 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
         String path = "Storage-Server/";
         File[] listOfFiles = folder.listFiles();
         File objective;
-        path =searchFile(listOfFiles,path,title);
+        path = searchFile(listOfFiles,path,title);
         objective = new File(path);
         byte buffer[]=new byte[(int)objective.length()];
         
@@ -61,28 +59,22 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
     
 
     @Override
-    public void saveFile(String title, String content) throws RemoteException {
-        try {
-            manageFile(title, content);
-        } catch (IOException ex) {
-            Logger.getLogger(RMIImplementation.class.getName()).log(Level.SEVERE, null, ex);
+    public void saveFile(byte[] buffer, String title) throws RemoteException {
+        String uniqueID = UUID.randomUUID().toString();
+        File dir = new File("Storage-Server/" + uniqueID);
+        dir.mkdir();
+        String path = "Storage-Server/" + uniqueID+ "/" + title;
+        File file = new File(path);
+        
+        try{
+                FileOutputStream FOS = new FileOutputStream(path);
+                BufferedOutputStream Output = new BufferedOutputStream(FOS);
+                Output.write(buffer,0,buffer.length);
+                Output.flush();
+                Output.close();
+        }
+        catch(IOException e){
+            System.out.println("FileServer exception:"+e.getMessage());
         }
     }
-
-    public void manageFile(String title, String content) throws IOException {
-        try {
-            File file = new File("Storage-Server/"+title);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            this.f.add(file);
-            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(content);
-            bw.close();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
 }
