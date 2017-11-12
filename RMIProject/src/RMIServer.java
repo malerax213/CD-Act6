@@ -5,10 +5,13 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class RMIServer {
-
-    public static void main(String args[]) {
+    public static void main(String args[]) throws IOException {
         File dir = new File("Storage-Server");
         dir.mkdir();
+        dir = new File("Storage-Server/config");
+        dir.mkdir();
+        File config = new File("Storage-Server/config/library");
+        config.createNewFile();
         
         try {
             // code for port number value to be supplied

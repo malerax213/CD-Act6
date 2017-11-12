@@ -18,12 +18,15 @@ public class RMIClient {
             String input;
             Scanner reader = new Scanner(System.in);
             
+            System.out.println("Enter your user Name");
+            String user = reader.nextLine();
+            
             while (true) {
                 System.out.println("What should I do?(upload file, download file or stop");
                 input = reader.nextLine();
 
                 if ("upload file".equals(input)) {
-                    uploadFileAction(inter);
+                    uploadFileAction(inter, user);
                 }
                 else if ("download file".equals(input)) {
                     downloadFileAction(inter);
@@ -41,12 +44,14 @@ public class RMIClient {
         }
     }
     
-    public static void uploadFileAction(RMIInterface inter) throws RemoteException{      
-        String title;
+    public static void uploadFileAction(RMIInterface inter, String user) throws RemoteException{      
+        String title, tags;
         Scanner reader = new Scanner(System.in);
         
-        System.out.println("Entre title name");
+        System.out.println("Enter title name");
         title = reader.nextLine();
+        System.out.println("Enter some tags");
+        tags = reader.nextLine();
         
         File folder = new File("Storage-Client");
         String path = "Storage-Client/";
@@ -63,7 +68,8 @@ public class RMIClient {
                 BufferedInputStream input = new BufferedInputStream(FIS);
                 input.read(buffer,0,buffer.length);
                 input.close();
-                inter.saveFile(buffer,title);
+                
+                inter.saveFile(buffer,title, user,  tags);
             } catch (IOException e) {
                 System.out.println("FileServer exception:"+e.getMessage());
             }     
@@ -76,14 +82,14 @@ public class RMIClient {
     
     public static String searchFile(File[] listOfFiles, String path,String title){
         String found = null;
-        for (File listOfFile : listOfFiles) {
-            if (listOfFile.isFile()) {
-                if (listOfFile.getName().equals(title)) {
+        for (File e : listOfFiles) {
+            if (e.isFile()) {
+                if (e.getName().equals(title)) {
                     return path+"/"+title;
                 }
-            } else if (listOfFile.isDirectory()) {
-                File folder = new File(listOfFile.getName());
-                found = searchFile(folder.listFiles(), path + "/" + listOfFile.getName(),title);
+            } else if (e.isDirectory()) {
+                File folder = new File(path+"/"+e.getName());
+                found = searchFile(folder.listFiles(), path + "/" + folder.getName(),title);
                 if (found != null){
                     return found;
                 }

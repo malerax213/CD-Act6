@@ -3,11 +3,14 @@ import java.io.*;
 import java.rmi.*;
 import java.rmi.server.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
  * This class implements the remote interface RMIInterface.
  */
+
 public class RMIImplementation extends UnicastRemoteObject implements RMIInterface {
 
     List<File> f = new ArrayList<>();
@@ -45,7 +48,7 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
                 if (e.getName().equals(title)) {
                     return path+"/"+title;
                 }
-            } else if (e.isDirectory()) {
+            } else if (e.isDirectory() && !"config".equals(e.getName())) {
                 File folder = new File(path+"/"+e.getName());
                 found = searchFile(folder.listFiles(), path + "/" + folder.getName(),title);
                 if (found != null){
@@ -57,11 +60,17 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
     }
 
     @Override
-    public void saveFile(byte[] buffer, String title) throws RemoteException {
+    public void saveFile(byte[] buffer, String title, String user, String tags) throws RemoteException {
         String uniqueID = UUID.randomUUID().toString();
         File dir = new File("Storage-Server/" + uniqueID);
         dir.mkdir();
         String path = "Storage-Server/" + uniqueID+ "/" + title;
+
+        try{
+            addToLibrary(title,path,user,tags);
+        } catch (IOException ex) {        
+            Logger.getLogger(RMIImplementation.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         try{
                 FileOutputStream FOS = new FileOutputStream(path);
@@ -74,4 +83,45 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
             System.out.println("FileServer exception:"+e.getMessage());
         }
     }
+    
+    public void addToLibrary (String title,String path, String user, String tags) throws IOException {
+        FileWriter fw = new FileWriter("Storage-Server/config/library", true);
+        BufferedWriter bw = new BufferedWriter(fw);
+        
+        bw.write(title);
+        bw.newLine();
+        bw.write(user);
+        bw.newLine();
+        bw.write(path);
+        bw.newLine();
+        bw.write(tags);
+        bw.newLine();
+
+        bw.close();
+    }
+    
+    public Map readLibrary () throws FileNotFoundException, IOException {
+        FileReader fr = new FileReader("Storage-Server/config/library");
+        BufferedReader br = new BufferedReader(fr);
+        
+        String line = br.readLine();
+        Map<String, ArrayList> library = new HashMap<String, ArrayList>();
+        String title = null;
+        while (line != null) {
+            ArrayList<Object> info = new ArrayList<>();
+            for(int i = 0; i<4; i++){
+                if(i==0){
+                    title = line;
+                }
+                info.add(line);
+                br.readLine();
+            }
+            library.put(title, info);
+        }
+        br.close();
+        fr.close();
+        
+        return library;
+    }
+    
 }

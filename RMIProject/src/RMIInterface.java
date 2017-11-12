@@ -8,7 +8,7 @@ public interface RMIInterface extends Remote {
     public byte[] downloadFile(String content)
             throws java.rmi.RemoteException;
     
-    public void saveFile(byte[] file, String title)
+    public void saveFile(byte[] file, String title, String user, String tags)
             throws java.rmi.RemoteException;
 
 }
