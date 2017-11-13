@@ -122,13 +122,23 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
     }
 
     @Override
-    public List searchFiles(String textualDescription) throws RemoteException {
+    public List searchFiles(String tags) throws RemoteException {
         Map<String, ArrayList> library = new HashMap<String, ArrayList>();
         List<String> result = new ArrayList();
+        String[] tagslist = tags.split("[ ,]");
+        
         try {
             library = readLibrary();
             for (Map.Entry<String, ArrayList> entry : library.entrySet()) {
-                if (String.valueOf(entry.getValue().get(3)).equals(textualDescription)) { // The 3rd position of the value will be the TAG field
+                String[] tagsfile = String.valueOf(entry.getValue().get(3)).split("[ ,]");
+                Boolean found = true;
+
+                for(String tag : tagslist){
+                    if (!Arrays.asList(tagsfile).contains(tag)) { // The 3rd position of the value will be the TAG field
+                        found = false;
+                    }
+                }
+                if(found){
                     result.add(String.valueOf(entry.getValue().get(0)));
                 }
             }

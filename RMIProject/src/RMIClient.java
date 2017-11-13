@@ -128,8 +128,8 @@ public class RMIClient {
         System.out.println("Insert the tags you want to look for");
 
         Scanner reader = new Scanner(System.in);
-        String textualDescription = reader.nextLine();
-        List<String> result = inter.searchFiles(textualDescription);
+        String tags = reader.nextLine();
+        List<String> result = inter.searchFiles(tags);
 
         System.out.println("List of contents related to the entered tag:");
         if (!result.isEmpty()) {
