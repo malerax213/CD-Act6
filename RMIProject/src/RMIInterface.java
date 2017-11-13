@@ -14,5 +14,8 @@ public interface RMIInterface extends Remote {
     
     public List searchFiles(String tags)
             throws java.rmi.RemoteException;
+    
+    public Boolean deleteFile(String file, String user)
+        throws java.rmi.RemoteException;
 
 }

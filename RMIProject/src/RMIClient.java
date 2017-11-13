@@ -22,7 +22,7 @@ public class RMIClient {
             String user = reader.nextLine();
 
             while (true) {
-                System.out.println("What should I do?(upload file, download file, search files or stop");
+                System.out.println("What should I do?(upload file, download file, search files, delete file or stop");
                 input = reader.nextLine();
 
                 if ("upload file".equals(input)) {
@@ -31,6 +31,8 @@ public class RMIClient {
                     downloadFileAction(inter);
                 } else if ("search files".equals(input)) {
                     searchFilesAction(inter);
+                } else if ("delete file".equals(input)) {
+                    deleteFileAction(inter,user);
                 } else if ("stop".equals(input)) {
                     break;
                 } else {
@@ -136,6 +138,22 @@ public class RMIClient {
             for (int i = 0; i < result.size(); i++) {
                 System.out.println("Title number "+(i+1)+": "+result.get(i));
             }
+        }else{
+            System.out.println("Nothing has been found!");
+        }
+    }
+    
+        public static void deleteFileAction(RMIInterface inter, String user) throws RemoteException {
+        // Prints the titles of the files with the tag "textualDescrption"
+        System.out.println("Insert the file you want to erase");
+        Scanner reader = new Scanner(System.in);
+        String file = reader.nextLine();
+
+        Boolean result;
+        result = inter.deleteFile(file,user);
+
+        if (result) {
+            System.out.println("File erased");
         }else{
             System.out.println("Nothing has been found!");
         }

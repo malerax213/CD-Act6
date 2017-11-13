@@ -1,5 +1,6 @@
 
 import java.io.*;
+import java.nio.file.Files;
 import java.rmi.*;
 import java.rmi.server.*;
 import java.util.*;
@@ -102,7 +103,7 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
         BufferedReader br = new BufferedReader(fr);
 
         String line = br.readLine();
-        Map<String, ArrayList> library = new HashMap<String, ArrayList>();
+        Map<String, ArrayList> library = new HashMap<>();
         String title = null;
         while (line != null) {
             ArrayList<Object> info = new ArrayList<>();
@@ -120,10 +121,26 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
         fr.close();
         return library; // Returns a Map with the title and the content of every upload made by a client
     }
+    
+        public void updateLibrary(Map<String, ArrayList> library) throws FileNotFoundException, IOException {
+        // Update the file library, after deletinh an element
+        
+        PrintWriter writer = new PrintWriter("Storage-Server/config/library");
+        writer.print("");
+        writer.close();
+        
+        for(Map.Entry<String, ArrayList> entry : library.entrySet()){
+            String title = String.valueOf(entry.getValue().get(0));
+            String path = String.valueOf(entry.getValue().get(1));
+            String user = String.valueOf(entry.getValue().get(2));
+            String tags = String.valueOf(entry.getValue().get(3));
+            addToLibrary(title, path, user, tags);
+        }
+    }
 
     @Override
     public List searchFiles(String tags) throws RemoteException {
-        Map<String, ArrayList> library = new HashMap<String, ArrayList>();
+        Map<String, ArrayList> library;
         List<String> result = new ArrayList();
         String[] tagslist = tags.split("[ ,]");
         
@@ -146,5 +163,34 @@ public class RMIImplementation extends UnicastRemoteObject implements RMIInterfa
             Logger.getLogger(RMIImplementation.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
+    }
+    
+    @Override
+    public Boolean deleteFile(String file, String user){
+        Map<String, ArrayList> library = new HashMap<>();
+        try {
+            library = readLibrary();
+            System.out.println(library.containsKey(file));
+            if (library.containsKey(file)){
+                ArrayList info;
+                info = library.get(file);
+                if(String.valueOf(info.get(1)).equals(user)){
+                    System.out.println("eliminado"+String.valueOf(info.get(2)));
+
+                    File tmp = new File(String.valueOf(info.get(2)));
+                    tmp.delete();
+                    String path = String.valueOf(info.get(2)).replace("/"+file,"");
+                    tmp = new File(path);
+                    tmp.delete();
+                    library.remove(file);
+                    updateLibrary(library);
+                    return true;
+                }
+            return false; 
+            }        
+        } catch (IOException ex) {
+            Logger.getLogger(RMIImplementation.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
     }
 }
