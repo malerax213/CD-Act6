@@ -7,52 +7,69 @@ import java.util.Scanner;
 
 public class RMIClient {
 
-    public static void main(String args[]) {
-        try {
-            File dir = new File("Storage-Client");
-            dir.mkdir();
+    public static void main(String args[]) throws RemoteException, NotBoundException, MalformedURLException {
 
-            String registryURL = "rmi://localhost:" + 1234 + "/some";
-            RMIInterface inter = (RMIInterface) Naming.lookup(registryURL);// invoke the remote method(s)
+        File dir = new File("Storage-Client");
+        dir.mkdir();
 
-            String input;
-            Scanner reader = new Scanner(System.in);
+        RMIServerInterface inter = lookForServer();
+        RMIClientImplementation cinter = new RMIClientImplementation();
 
-            System.out.println("Enter your user Name");
-            String user = reader.nextLine();
+        String input;
+        Scanner reader = new Scanner(System.in);
 
-            while (true) {
-                System.out.println("What should I do?(upload file, download file, search files, delete file or stop");
-                input = reader.nextLine();
+        // Client is being registered to the server
+        System.out.println("Enter your user Name");
+        String user = reader.nextLine();
+        inter.registerClient(cinter, user);
 
-                if ("upload file".equals(input)) {
-                    uploadFileAction(inter, user);
-                } else if ("download file".equals(input)) {
-                    downloadFileAction(inter);
-                } else if ("search files".equals(input)) {
-                    searchFilesAction(inter);
-                } else if ("delete file".equals(input)) {
-                    deleteFileAction(inter,user);
-                } else if ("stop".equals(input)) {
-                    break;
-                } else {
-                    System.out.println("Unrecognized order");
-                }
+        while (true) {
+            System.out.println("What should I do?(upload file, download file, search files, delete file or stop)");
+            input = reader.nextLine();
+
+            if ("upload file".equals(input)) {
+                uploadFileAction(inter, user, cinter);
+            } else if ("download file".equals(input)) {
+                downloadFileAction(inter);
+            } else if ("search files".equals(input)) {
+                searchFilesAction(inter);
+            } else if ("delete file".equals(input)) {
+                deleteFileAction(inter, user);
+            } else if ("stop".equals(input)) {
+                break;
+            } else {
+                System.out.println("Unrecognized order");
             }
-        } // end try
-        catch (MalformedURLException | NotBoundException | RemoteException e) {
-            System.out.println("Exception in RMIClient: " + e);
         }
+        // end try
+
     }
 
-    public static void uploadFileAction(RMIInterface inter, String user) throws RemoteException {
+    public static RMIServerInterface lookForServer() throws RemoteException, NotBoundException, MalformedURLException {
+        // Will look for a server
+        String portNum;
+        String IP;
+        Scanner reader = new Scanner(System.in);
+
+        System.out.println("Enter IP address:");
+        IP = reader.nextLine();
+
+        System.out.println("Enter the port of the server:");
+        portNum = reader.nextLine();
+
+        String registryURL = "rmi://" + IP + ":" + portNum + "/some";
+        RMIServerInterface inter = (RMIServerInterface) Naming.lookup(registryURL);
+        return inter;
+    }
+
+    public static void uploadFileAction(RMIServerInterface inter, String user, RMIClientInterface cinter) throws RemoteException {
         // Uploads the file with a title and tags to the server
         String title, tags;
         Scanner reader = new Scanner(System.in);
 
-        System.out.println("Enter title name");
+        System.out.println("Enter title name:");
         title = reader.nextLine();
-        System.out.println("Enter some tags");
+        System.out.println("Enter some tags:");
         tags = reader.nextLine();
 
         File folder = new File("Storage-Client");
@@ -71,8 +88,8 @@ public class RMIClient {
                 input.read(buffer, 0, buffer.length);
                 input.close();
 
-                inter.saveFile(buffer, title, user, tags);
-                System.out.println("File " + title + " has been uploaded to the server");
+                inter.saveFile(buffer, title, user, tags, cinter);
+                System.out.println("File " + title + " has been uploaded to the server\n");
             } catch (IOException e) {
                 System.out.println("FileServer exception:" + e.getMessage());
             }
@@ -100,17 +117,17 @@ public class RMIClient {
         return found;
     }
 
-    public static void downloadFileAction(RMIInterface inter) throws RemoteException {
+    public static void downloadFileAction(RMIServerInterface inter) throws RemoteException {
         String input;
         Scanner reader = new Scanner(System.in);
 
-        System.out.println("Insert the title of the file you want");
+        System.out.println("Insert the title of the file you want:");
         input = reader.nextLine();
         String path = "Storage-Client/" + input;
         byte[] file = inter.downloadFile(input);
 
         if (file == null) {
-            System.out.println("The file hasn't been found");
+            System.out.println("The file hasn't been found\n");
         } else {
             try {
                 FileOutputStream FOS = new FileOutputStream(path);
@@ -125,7 +142,7 @@ public class RMIClient {
         }
     }
 
-    public static void searchFilesAction(RMIInterface inter) throws RemoteException {
+    public static void searchFilesAction(RMIServerInterface inter) throws RemoteException {
         // Prints the titles of the files with the tag "textualDescrption"
         System.out.println("Insert the tags you want to look for");
 
@@ -136,26 +153,26 @@ public class RMIClient {
         System.out.println("List of contents related to the entered tag:");
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
-                System.out.println("Title number "+(i+1)+": "+result.get(i));
+                System.out.println("Title number " + (i + 1) + ": " + result.get(i)+"\n");
             }
-        }else{
-            System.out.println("Nothing has been found!");
+        } else {
+            System.out.println("Nothing has been found!\n");
         }
     }
-    
-        public static void deleteFileAction(RMIInterface inter, String user) throws RemoteException {
+
+    public static void deleteFileAction(RMIServerInterface inter, String user) throws RemoteException {
         // Prints the titles of the files with the tag "textualDescrption"
         System.out.println("Insert the file you want to erase");
         Scanner reader = new Scanner(System.in);
         String file = reader.nextLine();
 
         Boolean result;
-        result = inter.deleteFile(file,user);
+        result = inter.deleteFile(file, user);
 
         if (result) {
-            System.out.println("File erased");
-        }else{
-            System.out.println("Nothing has been found!");
+            System.out.println("File erased\n");
+        } else {
+            System.out.println("Nothing has been found!\n");
         }
     }
 }
