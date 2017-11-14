@@ -64,7 +64,7 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
         String path = "Storage-Server/" + uniqueID + "/" + title;
 
         try {
-            // We'll have a file called "librar" were all the information about the uploads will be stored
+            // We'll have a file called "library" where all the information about the uploads will be stored
             addToLibrary(title, path, user, tags); 
         } catch (IOException ex) {
             Logger.getLogger(RMIServerImplementation.class.getName()).log(Level.SEVERE, null, ex);
