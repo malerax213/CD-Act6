@@ -19,6 +19,8 @@ public interface RMIServerInterface extends Remote {
             throws java.rmi.RemoteException;
 
     public void registerClient(RMIClientInterface client, String userName)
-            throws RemoteException;
+            throws java.rmi.RemoteException;
 
+    public void disconnect(RMIClientInterface client)
+            throws java.rmi.RemoteException;
 }

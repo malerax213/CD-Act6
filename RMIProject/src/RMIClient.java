@@ -36,7 +36,8 @@ public class RMIClient {
             } else if ("delete file".equals(input)) {
                 deleteFileAction(inter, user);
             } else if ("stop".equals(input)) {
-                break;
+                inter.disconnect(cinter);
+                System.exit(0);
             } else {
                 System.out.println("Unrecognized order");
             }
@@ -153,7 +154,7 @@ public class RMIClient {
         System.out.println("List of contents related to the entered tag:");
         if (!result.isEmpty()) {
             for (int i = 0; i < result.size(); i++) {
-                System.out.println("Title number " + (i + 1) + ": " + result.get(i)+"\n");
+                System.out.println("Title number " + (i + 1) + ": " + result.get(i) + "\n");
             }
         } else {
             System.out.println("Nothing has been found!\n");
