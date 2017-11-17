@@ -125,7 +125,7 @@ public class RMIClient {
         System.out.println("Insert the title of the file you want:");
         input = reader.nextLine();
         String path = "Storage-Client/" + input;
-        byte[] file = inter.downloadFile(input);
+        byte[] file = inter.downloadFile(input,null);
 
         if (file == null) {
             System.out.println("The file hasn't been found\n");

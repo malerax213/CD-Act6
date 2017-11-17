@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface RMIServerInterface extends Remote {
 
-    public byte[] downloadFile(String content)
+    public byte[] downloadFile(String content, String server)
             throws java.rmi.RemoteException;
 
     public void saveFile(byte[] file, String title, String user, String tags, RMIClientInterface cinter)
@@ -22,5 +22,8 @@ public interface RMIServerInterface extends Remote {
             throws java.rmi.RemoteException;
 
     public void disconnect(RMIClientInterface client)
+            throws java.rmi.RemoteException;
+
+    public void registerServer(RMIServerInterface server, String Name)
             throws java.rmi.RemoteException;
 }

@@ -1,6 +1,5 @@
 
 import java.io.*;
-import java.nio.file.Files;
 import java.rmi.*;
 import java.rmi.server.*;
 import java.util.*;
@@ -13,31 +12,48 @@ import java.util.logging.Logger;
 public class RMIServerImplementation extends UnicastRemoteObject implements RMIServerInterface {
 
     Map<RMIClientInterface, String> clients = new HashMap<>(); // Will contain all the clients
-
+    Map<RMIServerInterface, String> servers = new HashMap<>();
+    String Name;
+    
     public RMIServerImplementation() throws RemoteException {
         super();
     }
 
     @Override
-    public byte[] downloadFile(String title) throws RemoteException {
+    public byte[] downloadFile(String title ,String caller) throws RemoteException {
         File folder = new File("Storage-Server");
         String path = "Storage-Server";
         File[] listOfFiles = folder.listFiles();
         path = searchFile(listOfFiles, path, title);
-        File objective = new File(path);
-        byte buffer[] = new byte[(int) objective.length()];
-
-        try {
-            BufferedInputStream input = new BufferedInputStream(new FileInputStream(path));
-            input.read(buffer, 0, buffer.length);
-            input.close();
-            return (buffer);
-        } catch (IOException e) {
-            System.out.println("FileServer exception:" + e.getMessage());
-            return null;
+        byte buffer[] = null;
+         
+        if (path!=null){
+            File objective = new File(path);
+            buffer = new byte[(int) objective.length()];
+            try {
+                BufferedInputStream input = new BufferedInputStream(new FileInputStream(path));
+                input.read(buffer, 0, buffer.length);
+                input.close();
+                if (buffer != null){
+                    return buffer;
+                }
+            } catch (IOException e) {
+                System.out.println("FileServer exception:" + e.getMessage());
+                return null;
+            }
         }
+        for(Map.Entry<RMIServerInterface,String> server : servers.entrySet()){
+            if(!server.getValue().equals(caller)){
+                System.out.println("Searching in Server:" + server);
+                buffer = server.getKey().downloadFile(title, Name);
+            }
+            if (buffer != null){
+                return buffer;
+            }
+        }
+        return null;
     }
-
+        
     public String searchFile(File[] listOfFiles, String path, String title) {
         String found = null;
         for (File e : listOfFiles) {
@@ -208,6 +224,15 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
             client.sendMessage("Registered successfully with user: " + userName);
             System.out.println("User registed with user name: " + userName);
         }
+    }
+    
+    @Override
+    public void registerServer(RMIServerInterface server, String Name) throws RemoteException{
+        if(!this.servers.containsKey(server)){
+            servers.put(server, Name);
+            server.registerServer(this, Name);
+        }
+
     }
     
     public void notifyClients(RMIClientInterface client, String title) throws RemoteException{
