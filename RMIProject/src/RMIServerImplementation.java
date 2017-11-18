@@ -155,7 +155,7 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
     }
 
     @Override
-    public List searchFiles(String tags) throws RemoteException {
+    public List searchFiles(String tags, String caller) throws RemoteException {
         Map<String, ArrayList> library;
         List<String> result = new ArrayList();
         String[] tagslist = tags.split("[ ,]");
@@ -178,6 +178,14 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
         } catch (IOException ex) {
             Logger.getLogger(RMIServerImplementation.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        
+        for(Map.Entry<RMIServerInterface,String> server : servers.entrySet()){
+            if(!server.getValue().equals(caller)){
+                System.out.println("Searching Tags in Server:" + server);
+                result.addAll(server.getKey().searchFiles(tags, Name));
+            }
+        }      
         return result;
     }
     

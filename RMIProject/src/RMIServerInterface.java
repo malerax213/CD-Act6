@@ -12,7 +12,7 @@ public interface RMIServerInterface extends Remote {
     public void saveFile(byte[] file, String title, String user, String tags, RMIClientInterface cinter)
             throws java.rmi.RemoteException;
 
-    public List searchFiles(String tags)
+    public List searchFiles(String tags, String caller)
             throws java.rmi.RemoteException;
 
     public Boolean deleteFile(String file, String user)
