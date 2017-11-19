@@ -83,7 +83,7 @@ public class RMIServer {
             System.out.println("Enter the IP of the server:");
             IP = reader.nextLine();
             
-            System.out.println("Enter the IP of the server:");
+            System.out.println("Enter the port of the server:");
             portNum = reader.nextLine();
             
             String registryURL = "rmi://" + IP + ":" + portNum + "/some";
