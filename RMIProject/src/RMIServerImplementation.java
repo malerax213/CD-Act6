@@ -129,7 +129,6 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
                     title = line;
                 }
                 info.add(line);
-                System.out.println("Agrego: "+line);
                 line = br.readLine();
             }
             library.put(title, info);
