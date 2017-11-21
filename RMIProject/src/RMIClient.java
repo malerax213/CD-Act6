@@ -3,6 +3,8 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.rmi.*;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,13 +17,24 @@ public class RMIClient {
 
         RMIServerInterface inter = lookForServer();
         
-        String IP = InetAddress.getLocalHost().getHostAddress();
-        System.out.println("IP of this system" + IP);
-        System.setProperty("java.rmi.server.hostname", IP);
+        Scanner reader = new Scanner(System.in);
+        System.out.println("Enter the IP of this Machine");
+        String IP = reader.nextLine();
+        System.out.println("IP of this system: " + IP);
+        System.setProperty("java.rmi.server.hostname", "192.168.1.134");
+        
+        
         RMIClientImplementation cinter = new RMIClientImplementation();
 
-        String input;
-        Scanner reader = new Scanner(System.in);
+        try {
+            Registry registry = LocateRegistry.getRegistry(1099); // No valid registry at that port.
+            registry.list();
+        } catch (RemoteException ex) {
+            LocateRegistry.createRegistry(1099);
+        }
+    
+        String registryURL = "rmi://" + "192.168.1.134" + ":" + 1099 + "/some";
+        Naming.rebind(registryURL, cinter);
 
         // Client is being registered to the server
         System.out.println("Enter your user Name");
@@ -30,7 +43,7 @@ public class RMIClient {
 
         while (true) {
             System.out.println("What should I do?(upload file, download file, search files, delete file or stop)");
-            input = reader.nextLine();
+            String input = reader.nextLine();
 
             if ("upload file".equals(input)) {
                 uploadFileAction(inter, user, cinter);
