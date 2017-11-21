@@ -20,8 +20,7 @@ public class RMIClient {
         Scanner reader = new Scanner(System.in);
         System.out.println("Enter the IP of this Machine");
         String IP = reader.nextLine();
-        System.out.println("IP of this system: " + IP);
-        System.setProperty("java.rmi.server.hostname", "192.168.1.134");
+        System.setProperty("java.rmi.server.hostname", IP);
         
         
         RMIClientImplementation cinter = new RMIClientImplementation();
@@ -33,7 +32,7 @@ public class RMIClient {
             LocateRegistry.createRegistry(1099);
         }
     
-        String registryURL = "rmi://" + "192.168.1.134" + ":" + 1099 + "/some";
+        String registryURL = "rmi://" + IP + ":" + 1099 + "/some";
         Naming.rebind(registryURL, cinter);
 
         // Client is being registered to the server

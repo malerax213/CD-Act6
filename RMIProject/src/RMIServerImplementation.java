@@ -193,7 +193,6 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
         Map<String, ArrayList> library = new HashMap<>();
         try {
             library = readLibrary();
-            System.out.println(library.containsKey(file));
             if (library.containsKey(file)){
                 ArrayList info;
                 info = library.get(file);
