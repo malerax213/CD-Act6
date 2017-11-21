@@ -1,5 +1,6 @@
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.rmi.*;
 import java.util.List;
@@ -7,12 +8,16 @@ import java.util.Scanner;
 
 public class RMIClient {
 
-    public static void main(String args[]) throws RemoteException, NotBoundException, MalformedURLException {
+    public static void main(String args[]) throws RemoteException, NotBoundException, MalformedURLException, java.net.UnknownHostException {
 
         File dir = new File("Storage-Client");
         dir.mkdir();
 
         RMIServerInterface inter = lookForServer();
+        
+        String IP = InetAddress.getLocalHost().getHostAddress();
+        System.out.println("IP of this system" + IP);
+        System.setProperty("java.rmi.server.hostname", IP);
         RMIClientImplementation cinter = new RMIClientImplementation();
 
         String input;

@@ -41,7 +41,7 @@ public class RMIServer {
         System.out.println("Enter the port of the server:");
         portNum = reader.nextLine();
 
-        
+        System.setProperty("java.rmi.server.hostname", IP);
         RMIServerImplementation exportedObj = new RMIServerImplementation();
         startRegistry(Integer.parseInt(portNum));
             
