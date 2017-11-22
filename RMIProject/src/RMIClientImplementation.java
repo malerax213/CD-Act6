@@ -1,8 +1,11 @@
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 
-
-public class RMIClientImplementation extends UnicastRemoteObject implements RMIClientInterface{
+/**
+ * This class implements the remote interface RMIClientInterface.
+ */
+public class RMIClientImplementation extends UnicastRemoteObject 
+        implements RMIClientInterface{
     
     public RMIClientImplementation() throws RemoteException{
         super();
@@ -10,6 +13,7 @@ public class RMIClientImplementation extends UnicastRemoteObject implements RMIC
 
     @Override
     public void sendMessage(String msg) throws RemoteException{
+        // Method used for receiving messages from the server
         System.out.println(msg);
     }
 

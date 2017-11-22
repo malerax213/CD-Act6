@@ -16,6 +16,7 @@ public class RMIServer {
         dir = new File("Storage-Server/config");
         dir.mkdir();
         
+        // The registry file is being created
         File config = new File("Storage-Server/config/library");
         config.createNewFile();
         
@@ -27,25 +28,28 @@ public class RMIServer {
         }
     }
 
-    public static RMIServerImplementation confServer() throws RemoteException, NotBoundException, MalformedURLException {
-        // Will look for a server
+    public static RMIServerImplementation confServer() throws RemoteException, 
+            NotBoundException, MalformedURLException {
+        // Handles the configuration of the srever
         String portNum, IP;
         Scanner reader = new Scanner(System.in);
         
-        System.out.println("Enter the name of this Server");
+        System.out.println("Enter the name of this Server:");
         Name = reader.nextLine();
         
-        System.out.println("Enter IP address: (you can write localhost to use the default one)");
+        System.out.println("Enter IP address: (you can write localhost "
+                + "to use the default one)");
         IP = reader.nextLine();
 
         System.out.println("Enter the port of the server:");
         portNum = reader.nextLine();
 
+        // The hostname of the machine is being set
         System.setProperty("java.rmi.server.hostname", IP);
         RMIServerImplementation exportedObj = new RMIServerImplementation();
         startRegistry(Integer.parseInt(portNum));
             
-        // Register the object under the name “some”
+        // Registers the object under the name “some”
         String registryURL = "rmi://" + IP + ":" + portNum + "/some";
         Naming.rebind(registryURL, exportedObj);
         System.out.println("Server ready.\n");
@@ -53,16 +57,14 @@ public class RMIServer {
         return exportedObj;
     }
     
-    // This method starts a RMI registry on the local host, if it does not already exists at the specified port number.
     private static void startRegistry(int RMIPortNum)
             throws RemoteException {
         try {
-            Registry registry = LocateRegistry.getRegistry(RMIPortNum); // No valid registry at that port.
+            Registry registry = LocateRegistry.getRegistry(RMIPortNum);
             registry.list();
 
-            // The above call will throw an exception if the registry does not already exist
+        // The above call will throw an exception if the registry does not already exist
         } catch (RemoteException ex) {
-            // No valid registry at that port.
             System.out.println(
                     "RMI registry cannot be located at port " + RMIPortNum);
             LocateRegistry.createRegistry(RMIPortNum);
@@ -71,8 +73,9 @@ public class RMIServer {
         }
     }
     
-    public static void joinDS(RMIServerImplementation self) throws RemoteException, NotBoundException, MalformedURLException {
-        // Will look for a server
+    public static void joinDS(RMIServerImplementation self) 
+            throws RemoteException, NotBoundException, MalformedURLException {
+        // Handles the connection between multiple servers
         String portNum;
         String IP;
         Scanner reader = new Scanner(System.in);

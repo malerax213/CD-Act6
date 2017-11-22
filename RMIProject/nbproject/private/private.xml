@@ -3,9 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Kevin/Desktop/Trabajo/CD-Act6/RMIProject/src/RMIClient.java</file>
-            <file>file:/C:/Users/Kevin/Desktop/Trabajo/CD-Act6/RMIProject/src/RMIClientImplementation.java</file>
-            <file>file:/C:/Users/Kevin/Desktop/Trabajo/CD-Act6/RMIProject/src/RMIServerImplementation.java</file>
+            <file>file:/C:/Users/amartinas/Downloads/Uni/CD-Act6-master/RMIProject/src/RMIClientInterface.java</file>
+            <file>file:/C:/Users/amartinas/Downloads/Uni/CD-Act6-master/RMIProject/src/RMIServerInterface.java</file>
+            <file>file:/C:/Users/amartinas/Downloads/Uni/CD-Act6-master/RMIProject/src/RMIClientImplementation.java</file>
+            <file>file:/C:/Users/amartinas/Downloads/Uni/CD-Act6-master/RMIProject/src/RMIServer.java</file>
+            <file>file:/C:/Users/amartinas/Downloads/Uni/CD-Act6-master/RMIProject/src/RMIClient.java</file>
+            <file>file:/C:/Users/amartinas/Downloads/Uni/CD-Act6-master/RMIProject/src/RMIServerImplementation.java</file>
         </group>
     </open-files>
 </project-private>

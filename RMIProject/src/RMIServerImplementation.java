@@ -7,11 +7,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class implements the remote interface RMIInterface.
+ * This class implements the remote interface RMIServerInterface.
  */
-public class RMIServerImplementation extends UnicastRemoteObject implements RMIServerInterface {
+public class RMIServerImplementation extends UnicastRemoteObject 
+        implements RMIServerInterface {
 
-    Map<RMIClientInterface, String> clients = new HashMap<>(); // Will contain all the clients
+    // Will contain all the clients
+    Map<RMIClientInterface, String> clients = new HashMap<>();
+    // Will contain all the servers
     Map<RMIServerInterface, String> servers = new HashMap<>();
     String Name;
     
@@ -31,7 +34,8 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
             File objective = new File(path);
             buffer = new byte[(int) objective.length()];
             try {
-                BufferedInputStream input = new BufferedInputStream(new FileInputStream(path));
+                BufferedInputStream input = 
+                        new BufferedInputStream(new FileInputStream(path));
                 input.read(buffer, 0, buffer.length);
                 input.close();
                 if (buffer != null){
@@ -42,6 +46,7 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
                 return null;
             }
         }
+        // Handles multiple servers download
         for(Map.Entry<RMIServerInterface,String> server : servers.entrySet()){
             if(!server.getValue().equals(caller)){
                 System.out.println("Searching in Server:" + server);
@@ -55,6 +60,7 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
     }
         
     public String searchFile(File[] listOfFiles, String path, String title) {
+        // Search a title in a list of files and returns the path of it
         String found = null;
         for (File e : listOfFiles) {
             if (e.isFile()) {
@@ -63,7 +69,8 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
                 }
             } else if (e.isDirectory() && !"config".equals(e.getName())) {
                 File folder = new File(path + "/" + e.getName());
-                found = searchFile(folder.listFiles(), path + "/" + folder.getName(), title);
+                found = searchFile(folder.listFiles(), path + "/" + 
+                        folder.getName(), title);
                 if (found != null) {
                     return found;
                 }
@@ -73,17 +80,22 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
     }
 
     @Override
-    public void saveFile(byte[] buffer, String title, String user, String tags, RMIClientInterface cinter) throws RemoteException {
+    public void saveFile(byte[] buffer, String title, String user, String tags, 
+            RMIClientInterface cinter) throws RemoteException {
+        // The random ID is being generated each time a file is saved
+        // on the server's folder
         String uniqueID = UUID.randomUUID().toString();
         File dir = new File("Storage-Server/" + uniqueID);
         dir.mkdir();
         String path = "Storage-Server/" + uniqueID + "/" + title;
 
         try {
-            // We'll have a file called "librar" were all the information about the uploads will be stored
+            // There's a file called "library" where all the information 
+            // about the uploads will be stored
             addToLibrary(title, path, user, tags); 
         } catch (IOException ex) {
-            Logger.getLogger(RMIServerImplementation.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RMIServerImplementation.class.getName())
+                    .log(Level.SEVERE, null, ex);
         }
 
         try {
@@ -98,7 +110,9 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
         }
     }
 
-    public void addToLibrary(String title, String path, String user, String tags) throws IOException {
+    public void addToLibrary(String title, String path, String user, String tags) 
+            throws IOException {
+        // Adds the information about the upload to the registry file (library)
         FileWriter fw = new FileWriter("Storage-Server/config/library", true);
         BufferedWriter bw = new BufferedWriter(fw);
 
@@ -115,7 +129,7 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
     }
 
     public Map readLibrary() throws FileNotFoundException, IOException {
-        // Reads the file library (where all the information about uploads is saved)
+        // Reads the file library (where all the information about the uploads is saved)
         FileReader fr = new FileReader("Storage-Server/config/library");
         BufferedReader br = new BufferedReader(fr);
 
@@ -135,10 +149,12 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
         }
         br.close();
         fr.close();
-        return library; // Returns a Map with the title and the content of every upload made by a client
+        // Returns a Map with the title and the content of every upload made by a client
+        return library;
     }
     
-        public void updateLibrary(Map<String, ArrayList> library) throws FileNotFoundException, IOException {
+        public void updateLibrary(Map<String, ArrayList> library) 
+                throws FileNotFoundException, IOException {
         // Update the file library, after deleting an element
         PrintWriter writer = new PrintWriter("Storage-Server/config/library");
         writer.print("");
@@ -162,11 +178,13 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
         try {
             library = readLibrary();
             for (Map.Entry<String, ArrayList> entry : library.entrySet()) {
-                String[] tagsfile = String.valueOf(entry.getValue().get(3)).split("[ ,]");
+                // The 3rd position of the value will be the TAG field
+                String[] tagsfile = String.valueOf(entry.getValue().get(3))
+                        .split("[ ,]");
                 Boolean found = true;
 
                 for(String tag : tagslist){
-                    if (!Arrays.asList(tagsfile).contains(tag)) { // The 3rd position of the value will be the TAG field
+                    if (!Arrays.asList(tagsfile).contains(tag)) {
                         found = false;
                     }
                 }
@@ -175,10 +193,11 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(RMIServerImplementation.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RMIServerImplementation.class.getName())
+                    .log(Level.SEVERE, null, ex);
         }
 
-        
+        // Handles the search on multiple servers
         for(Map.Entry<RMIServerInterface,String> server : servers.entrySet()){
             if(!server.getValue().equals(caller)){
                 System.out.println("Searching Tags in Server:" + server);
@@ -190,6 +209,7 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
     
     @Override
     public Boolean deleteFile(String file, String user){
+        // Handles the delete of the files
         Map<String, ArrayList> library = new HashMap<>();
         try {
             library = readLibrary();
@@ -201,23 +221,29 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
 
                     File tmp = new File(String.valueOf(info.get(2)));
                     tmp.delete();
+                    
                     String path = String.valueOf(info.get(2)).replace("/"+file,"");
                     tmp = new File(path);
                     tmp.delete();
+                    
+                    // The registry file (library) is being updated with the changes
                     library.remove(file);
                     updateLibrary(library);
+                    
                     return true;
                 }
             return false; 
             }        
         } catch (IOException ex) {
-            Logger.getLogger(RMIServerImplementation.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RMIServerImplementation.class.getName())
+                    .log(Level.SEVERE, null, ex);
         }
         return false;
     }
     
     @Override
-    public void registerClient(RMIClientInterface client, String userName) throws RemoteException{
+    public void registerClient(RMIClientInterface client, String userName) 
+            throws RemoteException{
         if(this.clients.containsKey(client))
             // If the client is already registered
             client.sendMessage("Client already registered");
@@ -233,7 +259,9 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
     }
     
     @Override
-    public void registerServer(RMIServerInterface server, String Name) throws RemoteException{
+    public void registerServer(RMIServerInterface server, String Name) 
+            throws RemoteException{
+        // If the server isn't on the servers Map, we add it
         if(!this.servers.containsKey(server)){
             servers.put(server, Name);
             server.registerServer(this, Name);
@@ -241,8 +269,10 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
 
     }
     
-    public void notifyClients(RMIClientInterface client, String title) throws RemoteException{
-        List<RMIClientInterface> clients_interface = new ArrayList<>(clients.keySet());
+    public void notifyClients(RMIClientInterface client, String title) 
+            throws RemoteException{
+        List<RMIClientInterface> clients_interface = 
+                new ArrayList<>(clients.keySet());
         
         // We iterate through all the clients
         for(RMIClientInterface cl: clients_interface){
@@ -252,7 +282,8 @@ public class RMIServerImplementation extends UnicastRemoteObject implements RMIS
     }
     
     public void disconnect(RMIClientInterface client) throws RemoteException{
-        System.out.println("Client: " + clients.get(client) + " disconnected");
+        // Removes the client from the clients Map
+        System.out.println("Client " + clients.get(client) + " --> disconnected");
         clients.remove(client);    
     }
 }
